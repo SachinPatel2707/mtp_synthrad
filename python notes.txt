@@ -1,0 +1,2 @@
+# to create a new kernel using virtual environment to be used in jupyter notebook
+$ ipython kernel install --user --name=venv
