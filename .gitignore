@@ -1,2 +1,11 @@
 venv/
 .ipynb_checkpoints/
+
+backup/backup_30_10_2023/
+backup/my_pix2pix/Models/
+backup/my_pix2pix/Task1/
+backup/my_pix2pix/__pycache__/
+backup/my_pix2pix/disc.pth.tar
+backup/my_pix2pix/evaluation/
+backup/my_pix2pix/gen.pth.tar
+backup/sachin@172.26.1.160/
