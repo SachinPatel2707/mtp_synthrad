@@ -1,18 +1,39 @@
-import torch
+import torch, numpy
 import config
 from torchvision.utils import save_image
+from torchvision import transforms
+from PIL import Image
 
 def save_some_examples(gen, val_loader, epoch, folder):
     x, y = next(iter(val_loader))
+    # x = x.transpose(1,2,0)
+    # y = y.transpose(1,2,0)
     x, y = x.to(config.DEVICE), y.to(config.DEVICE)
     gen.eval()
     with torch.no_grad():
+        input_image = x
+        transform = transforms.ToTensor()
+        x = transform(x).unsqueeze(0)
         y_fake = gen(x)
-        y_fake = y_fake * 0.5 + 0.5  # remove normalization#
-        save_image(y_fake, folder + f"/y_gen_{epoch}.png")
-        save_image(x * 0.5 + 0.5, folder + f"/input_{epoch}.png")
-        if epoch == 1:
-            save_image(y * 0.5 + 0.5, folder + f"/label_{epoch}.png")
+
+        # Convert the output tensor to a NumPy array
+        output_array = y_fake.squeeze().cpu().numpy()
+
+        # Transpose the output array back to (length, breadth, channels) format
+        output_array = numpy.transpose(output_array, (1, 2, 0))
+
+        # Convert the output array to a PIL image
+        output_image = Image.fromarray((output_array).astype(numpy.uint8))
+        input_image = Image.fromarray((input_image).astype(numpy.uint8))
+
+        # Save the output image as a .png file
+        output_image.save(folder + f"/y_gen_{epoch}.png")
+        input_image.save(folder + f"/input_{epoch}.png")
+
+        # save_image(y_fake, folder + f"/y_gen_{epoch}.png")
+        # save_image(x, folder + f"/input_{epoch}.png")
+        # if epoch == 1:
+        #     save_image(y, folder + f"/label_{epoch}.png")
     gen.train()
 
 
