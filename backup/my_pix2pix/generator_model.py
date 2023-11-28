@@ -3,12 +3,14 @@ import torch.nn as nn
 
 
 class Block(nn.Module):
-    def __init__(self, in_channels, out_channels, down=True, act="relu", use_dropout=False):
+    def __init__(self, in_channels, out_channels, down=True, act="relu", use_dropout=False, use_output_padding=False):
         super(Block, self).__init__()
         self.conv = nn.Sequential(
             nn.Conv2d(in_channels, out_channels, 4, 2, 1, bias=False, padding_mode="reflect")
             if down
-            else nn.ConvTranspose2d(in_channels, out_channels, 4, 2, 1, bias=False),
+            else (nn.ConvTranspose2d(in_channels, out_channels, 4, 2, 1, bias=False, output_padding=1)
+                  if use_output_padding
+                  else nn.ConvTranspose2d(in_channels, out_channels, 4, 2, 1, bias=False)),
             nn.BatchNorm2d(out_channels),
             nn.ReLU() if act == "relu" else nn.LeakyReLU(0.2),
         )
@@ -46,12 +48,12 @@ class Generator(nn.Module):
             features * 8, features * 8, down=True, act="leaky", use_dropout=False
         )
         self.bottleneck = nn.Sequential(
-            nn.Conv2d(features * 8, features * 8, 4, 2, 1), nn.ReLU()
+            nn.Conv2d(features * 8, features * 8, 3, 2, 1), nn.ReLU()
         )
 
         self.up1 = Block(features * 8, features * 8, down=False, act="relu", use_dropout=True)
         self.up2 = Block(
-            features * 8 * 2, features * 8, down=False, act="relu", use_dropout=True
+            features * 8 * 2, features * 8, down=False, act="relu", use_dropout=True, use_output_padding=True
         )
         self.up3 = Block(
             features * 8 * 2, features * 8, down=False, act="relu", use_dropout=True
@@ -78,12 +80,12 @@ class Generator(nn.Module):
         d4 = self.down3(d3)
         d5 = self.down4(d4)
         d6 = self.down5(d5)
-        d7 = self.down6(d6)
-        bottleneck = self.bottleneck(d7)
+        #d7 = self.down6(d6)
+        bottleneck = self.bottleneck(d6)
         up1 = self.up1(bottleneck)
-        up2 = self.up2(torch.cat([up1, d7], 1))
-        up3 = self.up3(torch.cat([up2, d6], 1))
-        up4 = self.up4(torch.cat([up3, d5], 1))
+        up2 = self.up2(torch.cat([up1, d6], 1))
+        #up3 = self.up3(torch.cat([up2, d6], 1))
+        up4 = self.up4(torch.cat([up2, d5], 1))
         up5 = self.up5(torch.cat([up4, d4], 1))
         up6 = self.up6(torch.cat([up5, d3], 1))
         up7 = self.up7(torch.cat([up6, d2], 1))

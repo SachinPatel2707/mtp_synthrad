@@ -9,3 +9,8 @@ backup/my_pix2pix/disc.pth.tar
 backup/my_pix2pix/evaluation/
 backup/my_pix2pix/gen.pth.tar
 backup/sachin@172.26.1.160/
+disc.pth.tar
+gen.pth.tar
+
+backup/backup_30_10_2023/
+backup/sachin@172.26.1.160/
