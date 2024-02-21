@@ -20,7 +20,7 @@ CHECKPOINT_DISC = "disc.pth.tar"
 CHECKPOINT_GEN = "gen.pth.tar"
 
 LEFT = 0
-RIGHT = 15
+RIGHT = 1
 
 both_transform = A.Compose(
     [A.Resize(width=256, height=256),], additional_targets={"image0": "image"},
